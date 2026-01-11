@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}DonerCraft{% endblock %}</title>
+
+  <!-- Tailwind (быстрый вариант) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/site.css" />
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+  <header class="w-full bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Лого -->
+      <a class="whitespace-nowrap" href="/"><img src="/static/img/logo.png" class="h-20 w-auto" alt="Логотип"></img></a>
+
+      <nav class="flex items-center gap-2 sm:gap-3">
+        <!-- Обычные кнопки: glow появляется ТОЛЬКО при hover -->
+        <a href="/base/" class="relative inline-flex items-center group">
+          <span
+            class="pointer-events-none absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-300 to-yellow-400 blur opacity-0 transition duration-500 group-hover:opacity-100">
+          </span>
+          <span
+            class="relative rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-900/10 hover:bg-gray-50">
+            Главное
+          </span>
+        </a>
+
+        <a href="/builder/" class="relative inline-flex items-center group">
+          <span
+            class="pointer-events-none absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-300 to-yellow-400 blur opacity-0 transition duration-500 group-hover:opacity-100">
+          </span>
+          <span
+            class="relative rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-900/10 hover:bg-gray-50">
+            Конструктор
+          </span>
+        </a>
+
+        <a href="/builder/" class="relative inline-flex items-center group">
+          <span
+            class="pointer-events-none absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-300 to-yellow-400 blur opacity-0 transition duration-500 group-hover:opacity-100">
+          </span>
+          <span
+            class="relative rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-900/10 hover:bg-gray-50">
+            Меню
+          </span>
+        </a>
+
+        <a href="/builder/" class="relative inline-flex items-center group">
+          <span
+            class="pointer-events-none absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-300 to-yellow-400 blur opacity-0 transition duration-500 group-hover:opacity-100">
+          </span>
+          <span
+            class="relative rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-900/10 hover:bg-gray-50">
+            Контакты
+          </span>
+        </a>
+
+        <a href="/builder/" class="relative inline-flex items-center group">
+          <span
+            class="pointer-events-none absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-300 to-yellow-400 blur opacity-0 transition duration-500 group-hover:opacity-100">
+          </span>
+          <span
+            class="relative rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-900/10 hover:bg-gray-50">
+            О нас
+          </span>
+        </a>
+
+        <!-- Корзина: остается оранжевой ВСЕГДА + усиленное свечение на hover -->
+        <a href="/cart/" class="relative inline-flex items-center group">
+          <span
+            class="pointer-events-none absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-300 to-yellow-400 blur opacity-30 transition duration-500 group-hover:opacity-100">
+          </span>
+          <span
+            class="relative rounded-full bg-orange-500 px-5 py-2 text-white text-sm font-semibold shadow hover:bg-orange-600">
+            Корзина
+          </span>
+        </a>
+
+        <a href="/admin/" class="relative inline-flex items-center group">
+          <span
+            class="pointer-events-none absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-300 to-yellow-400 blur opacity-0 transition duration-500 group-hover:opacity-100">
+          </span>
+          <span
+            class="relative rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-900/10 hover:bg-gray-50">
+            Админ
+          </span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    window.CSRF_TOKEN = getCookie('csrftoken');
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

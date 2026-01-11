@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Заказ создан{% endblock %}
+{% block content %}
+<h1>Заказ создан</h1>
+
+<div class="card">
+  <p>Номер заказа: <b>#{{ order.id }}</b></p>
+  <p>Статус: <b>{{ order.get_status_display }}</b></p>
+  <p>Оплата: <b>{{ order.get_payment_status_display }}</b> ({{ order.get_payment_method_display }})</p>
+  <p>Сумма: <b>{{ order.total }}</b></p>
+</div>
+
+<div class="card">
+  <h2>Тест оплаты (демо)</h2>
+  <p>Если выбрал ONLINE/KASPI_QR, можно вручную отметить оплату.</p>
+  <button id="btnPaid">Пометить как оплачено</button>
+  <pre id="out"></pre>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function markPaid() {
+  const r = await fetch("/api/payments/simulate-paid/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
+    body: JSON.stringify({order_id: {{ order.id }} })
+  });
+  const data = await r.json();
+  document.getElementById("out").textContent = JSON.stringify(data, null, 2);
+  if (data.ok) location.reload();
+}
+document.getElementById("btnPaid").addEventListener("click", markPaid);
+</script>
+{% endblock %}

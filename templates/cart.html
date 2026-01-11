@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Корзина{% endblock %}
+{% block content %}
+<h1>Корзина (пример)</h1>
+
+<div class="card">
+  <div id="cartBox">Загрузка...</div>
+  <p><a class="btn" href="/checkout/">Перейти к оформлению</a></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadCart() {
+  const r = await fetch("/api/cart/");
+  const data = await r.json();
+  const box = document.getElementById("cartBox");
+
+  if (!data.ok) {
+    box.textContent = "Ошибка корзины";
+    return;
+  }
+  const cart = data.cart;
+
+  if (!cart.items.length) {
+    box.innerHTML = "<p>Корзина пустая</p>";
+    return;
+  }
+
+  box.innerHTML = `
+    <ul>
+      ${cart.items.map(it => `
+        <li>
+          <b>${it.title}</b> — ${it.quantity} × ${it.unit_price} = ${it.total_price}
+          <button onclick="removeItem(${it.id})">Удалить</button>
+        </li>`).join("")}
+    </ul>
+    <hr/>
+    <div>Subtotal: <b>${cart.subtotal}</b></div>
+  `;
+}
+
+async function removeItem(id) {
+  await fetch("/api/cart/remove/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
+    body: JSON.stringify({item_id: id})
+  });
+  loadCart();
+}
+
+loadCart();
+</script>
+{% endblock %}

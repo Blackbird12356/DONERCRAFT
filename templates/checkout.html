@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Оформление{% endblock %}
+{% block content %}
+<h1>Оформление (пример)</h1>
+
+<div class="grid">
+  <div class="card">
+    <h2>Данные</h2>
+    <label>Имя: <input id="name" placeholder="Имя (если гость)"></label>
+    <label>Телефон*: <input id="phone" placeholder="+7..."></label>
+    <label>Email: <input id="email" placeholder="email"></label>
+    <label>Тип:
+      <select id="delivery_type">
+        <option value="DELIVERY">Доставка</option>
+        <option value="PICKUP">Самовывоз</option>
+      </select>
+    </label>
+    <label>Адрес (для доставки): <input id="address" placeholder="Город, улица..."></label>
+    <label>Комментарий: <textarea id="comment"></textarea></label>
+    <label>Промокод: <input id="promo_code" placeholder="DONER10"></label>
+    <label>Оплата:
+      <select id="payment_method">
+        <option value="CASH">Наличные</option>
+        <option value="ONLINE">Онлайн (демо)</option>
+        <option value="KASPI_QR">Kaspi QR (демо)</option>
+      </select>
+    </label>
+    <button id="btnCheckout">Создать заказ</button>
+  </div>
+
+  <div class="card">
+    <h2>Результат</h2>
+    <pre id="out">—</pre>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function doCheckout() {
+  const payload = {
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    email: document.getElementById("email").value,
+    delivery_type: document.getElementById("delivery_type").value,
+    address: document.getElementById("address").value,
+    comment: document.getElementById("comment").value,
+    promo_code: document.getElementById("promo_code").value,
+    payment_method: document.getElementById("payment_method").value
+  };
+
+  const r = await fetch("/api/checkout/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
+    body: JSON.stringify(payload)
+  });
+
+  const data = await r.json();
+  document.getElementById("out").textContent = JSON.stringify(data, null, 2);
+
+  if (data.ok && data.redirect) {
+    window.location.href = data.redirect;
+  } else if (!data.ok) {
+    alert(data.error || "Ошибка оформления");
+  }
+}
+
+document.getElementById("btnCheckout").addEventListener("click", doCheckout);
+</script>
+{% endblock %}
