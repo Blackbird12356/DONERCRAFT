@@ -35,7 +35,13 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-<button type="button" class="dodo-btn" id="open">Выбрать</button>
+<button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="1"
+        data-base-price="1500">
+  Выбрать
+</button>
+
 
 <div class="modal-container" id="modal_container" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -50,40 +56,58 @@
           </picture>
         </div>
       </div>
+      <!-- Правая часть: информация и выбор -->
+ <section class="builder-panel" id="modalBuilder" data-product-id="" data-base-price="0">
+  <h2 id="modalTitle" class="modal__title">Говяжий донер</h2>
+  <p class="modal__desc">Подробное описание говяжьего донера...</p>
 
-      <!-- Правая часть: контент -->
-      <div class="modal__right">
-        <h2 id="modalTitle" class="modal__title">Говяжий донер</h2>
-        <p class="modal__desc">Подробное описание говяжьего донера...</p>
+  <div class="builder-panel__controls">
 
-        <div class="grid">
-  <div class="card">
-    <h2>1) Выбор параметров</h2>
-    <label>Размер:
-      <select id="size"></select>
-    </label>
-    <label>Основа:
-      <select id="base"></select>
-    </label>
-    <hr/>
-    <h3>Ингредиенты (пример)</h3>
-    <div id="ingredients"></div>
-
-    <button id="btnCalc">Пересчитать</button>
-    <button id="btnAdd">Добавить в корзину</button>
-  </div>
-
-  <div class="card">
-    <h2>2) Цена</h2>
-    <div>Subtotal: <b id="subtotal">—</b></div>
-    <div>Warnings:</div>
-    <ul id="warnings"></ul>
-    <div>Аллергены: <span id="allergens"></span></div>
-  </div>
-</div>
-        <!-- тут дальше можешь добавлять опции/добавки/кнопки -->
-      </div>
+    <!-- Размер -->
+    <div class="seg seg--size">
+      <button type="button" class="seg__btn is-active" data-size="20">20 см</button>
+      <button type="button" class="seg__btn" data-size="25">25 см</button>
+      <button type="button" class="seg__btn" data-size="30">30 см</button>
+      <button type="button" class="seg__btn" data-size="35">35 см</button>
     </div>
+
+    <!-- Основа -->
+    <div class="seg seg--base">
+      <button type="button" class="seg__btn is-active" data-base="trad">Традиционное</button>
+      <button type="button" class="seg__btn" data-base="thin">Тонкое</button>
+    </div>
+
+    <h3 class="addons__title">Добавить по вкусу</h3>
+
+    <div class="addons-grid" id="addonsGrid">
+      <!-- цены берём из data-price -->
+      <button type="button" class="addon-card" data-addon-id="bortik" data-price="800">
+        <img src="/static/img/demo.png" class="addon-card__img" alt="">
+        <span class="addon-card__name">Сырный бортик</span>
+        <span class="addon-card__price">800 тг.</span>
+      </button>
+
+      <button type="button" class="addon-card" data-addon-id="mozz" data-price="350">
+        <img src="/static/img/demo.png" class="addon-card__img" alt="">
+        <span class="addon-card__name">Моцарелла</span>
+        <span class="addon-card__price">350 тг.</span>
+      </button>
+
+      <button type="button" class="addon-card" data-addon-id="cheddar" data-price="450">
+        <img src="/static/img/demo.png" class="addon-card__img" alt="">
+        <span class="addon-card__name">Чеддер и пармезан</span>
+        <span class="addon-card__price">450 тг.</span>
+      </button>
+    </div>
+
+    <div class="builder-total">
+      <div class="builder-total__price" id="modalTotal">0 тг.</div>
+      <button type="button" class="builder-total__cta" id="modalAddToCart">
+        В корзину
+      </button>
+    </div>
+  </div>
+</section>
   </div>
 </div>
 
@@ -103,7 +127,13 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button" class="dodo-btn">Выбрать</button>
+      <button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="1"
+        data-base-price="1500">
+  Выбрать
+</button>
+
   </div>
 </div>
     </article>

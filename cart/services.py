@@ -67,7 +67,7 @@ def add_product_item(cart: Cart, product_id: int, quantity: int = 1) -> dict:
         item_type=CartItem.ItemType.PRODUCT,
         quantity=qty,
         title=product.name,
-        snapshot_json={"product_id": product.id, "category": product.category.name},
+        snapshot_json={  "product_id": product.id, "category": product.category.name,"addons": payload.get("addons", []),"base": payload.get("base"), "size": payload.get("size"),},
         unit_price=unit_price,
         total_price=unit_price * qty,
     )

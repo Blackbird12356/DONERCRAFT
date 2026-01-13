@@ -98,23 +98,24 @@
   </main>
 
   <script>
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
+  // ===== CSRF =====
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
       }
-      return cookieValue;
     }
-    window.CSRF_TOKEN = getCookie('csrftoken');
+    return cookieValue;
+  }
+  window.CSRF_TOKEN = getCookie('csrftoken');
 
-  const openBtn = document.getElementById("open");
+  // ===== Modal open/close =====
   const modalContainer = document.getElementById("modal_container");
   const closeBtn = document.getElementById("close");
 
@@ -130,19 +131,149 @@
     document.body.classList.remove("no-scroll");
   }
 
-  if (openBtn) openBtn.addEventListener("click", openModal);
   if (closeBtn) closeBtn.addEventListener("click", closeModal);
 
-  // клик по фону закрывает (но клик по самому окну — нет)
-  modalContainer.addEventListener("click", (e) => {
-    if (e.target === modalContainer) closeModal();
-  });
+  // клик по фону закрывает
+  if (modalContainer) {
+    modalContainer.addEventListener("click", (e) => {
+      if (e.target === modalContainer) closeModal();
+    });
+  }
 
   // Esc закрывает
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modalContainer.classList.contains("show")) closeModal();
+    if (e.key === "Escape" && modalContainer?.classList.contains("show")) closeModal();
   });
-  </script>
+
+  // ===== Builder state =====
+  const modalBuilder = document.getElementById("modalBuilder");
+  const addonsGrid = document.getElementById("addonsGrid");
+  const modalTotal = document.getElementById("modalTotal");
+  const modalAddToCart = document.getElementById("modalAddToCart");
+
+  let selectedAddons = new Set();
+  let selectedBase = "trad";
+  let selectedSize = 20;
+  let basePrice = 0;
+  let productId = null;
+
+  function setActive(groupEl, selector, activeBtn) {
+    if (!groupEl || !activeBtn) return;
+    groupEl.querySelectorAll(selector).forEach(b => b.classList.remove("is-active"));
+    activeBtn.classList.add("is-active");
+  }
+
+  function recalcTotal() {
+    if (!addonsGrid || !modalTotal || !modalAddToCart) return 0;
+
+    let addonsSum = 0;
+    selectedAddons.forEach(id => {
+      const el = addonsGrid.querySelector(`[data-addon-id="${id}"]`);
+      addonsSum += el ? Number(el.dataset.price || 0) : 0;
+    });
+
+    const total = Number(basePrice) + addonsSum;
+    modalTotal.textContent = total + " тг.";
+    modalAddToCart.textContent = `В корзину за ${total} тг.`;
+    return total;
+  }
+
+  // ===== ОТКРЫТИЕ МОДАЛКИ ТОЛЬКО ЧЕРЕЗ .js-open-modal =====
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".js-open-modal");
+    if (!btn) return;
+
+    // 1) открыть окно
+    openModal();
+
+    // 2) взять цену и product_id из кнопки
+    productId = Number(btn.dataset.productId || 0);
+    basePrice = Number(btn.dataset.basePrice || 0);
+
+    // 3) сброс допов
+    selectedAddons = new Set();
+    addonsGrid?.querySelectorAll(".addon-card").forEach(c => c.classList.remove("is-selected"));
+
+    // 4) дефолты
+    selectedBase = "trad";
+    selectedSize = 20;
+
+    // 5) подсветка кнопок
+    const baseSeg = modalBuilder?.querySelector(".seg--base");
+    const sizeSeg = modalBuilder?.querySelector(".seg--size");
+    setActive(baseSeg, ".seg__btn", baseSeg?.querySelector(`[data-base="${selectedBase}"]`));
+    setActive(sizeSeg, ".seg__btn", sizeSeg?.querySelector(`[data-size="${selectedSize}"]`));
+
+    // 6) показать стартовую цену (1500)
+    recalcTotal();
+  });
+
+  // ===== Выбор размера/основы =====
+  modalBuilder?.addEventListener("click", (e) => {
+    const sizeBtn = e.target.closest(".seg--size .seg__btn");
+    if (sizeBtn) {
+      selectedSize = Number(sizeBtn.dataset.size);
+      setActive(modalBuilder.querySelector(".seg--size"), ".seg__btn", sizeBtn);
+      recalcTotal();
+      return;
+    }
+
+    const baseBtn = e.target.closest(".seg--base .seg__btn");
+    if (baseBtn) {
+      selectedBase = baseBtn.dataset.base;
+      setActive(modalBuilder.querySelector(".seg--base"), ".seg__btn", baseBtn);
+      recalcTotal();
+    }
+  });
+
+  // ===== Выбор допов =====
+  addonsGrid?.addEventListener("click", (e) => {
+    const card = e.target.closest(".addon-card");
+    if (!card) return;
+
+    const id = card.dataset.addonId;
+    if (selectedAddons.has(id)) {
+      selectedAddons.delete(id);
+      card.classList.remove("is-selected");
+    } else {
+      selectedAddons.add(id);
+      card.classList.add("is-selected");
+    }
+    recalcTotal();
+  });
+
+  // ===== Добавить в корзину =====
+  modalAddToCart?.addEventListener("click", async () => {
+    if (!productId) return;
+
+    const payload = {
+      item_type: "PRODUCT",
+      product_id: productId,
+      quantity: 1,
+      addons: Array.from(selectedAddons),
+      base: selectedBase,
+      size: selectedSize
+    };
+
+    const res = await fetch("/api/cart/add/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": window.CSRF_TOKEN || ""
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.ok) {
+      console.log("cart/add error:", data);
+      return;
+    }
+
+    window.location.href = "/cart/";
+  });
+</script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
