@@ -8,6 +8,7 @@
   <!-- Tailwind (быстрый вариант) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/static/site.css" />
+
 </head>
 
 <body class="bg-gray-50 min-h-screen">
@@ -112,8 +113,36 @@
       return cookieValue;
     }
     window.CSRF_TOKEN = getCookie('csrftoken');
-  </script>
 
+  const openBtn = document.getElementById("open");
+  const modalContainer = document.getElementById("modal_container");
+  const closeBtn = document.getElementById("close");
+
+  function openModal() {
+    modalContainer.classList.add("show");
+    modalContainer.setAttribute("aria-hidden", "false");
+    document.body.classList.add("no-scroll");
+  }
+
+  function closeModal() {
+    modalContainer.classList.remove("show");
+    modalContainer.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("no-scroll");
+  }
+
+  if (openBtn) openBtn.addEventListener("click", openModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+  // клик по фону закрывает (но клик по самому окну — нет)
+  modalContainer.addEventListener("click", (e) => {
+    if (e.target === modalContainer) closeModal();
+  });
+
+  // Esc закрывает
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modalContainer.classList.contains("show")) closeModal();
+  });
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

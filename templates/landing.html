@@ -35,7 +35,58 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button" class="dodo-btn">Выбрать</button>
+<button type="button" class="dodo-btn" id="open">Выбрать</button>
+
+<div class="modal-container" id="modal_container" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" id="close" aria-label="Закрыть">×</button>
+
+    <div class="modal__grid">
+      <!-- Левая часть: картинка -->
+      <div class="modal__left">
+        <div class="donerimg">
+          <picture class="donerimgpic">
+            <img alt="Говяжий донер" src="/static/img/donerwrap.png" class="donerimg__img">
+          </picture>
+        </div>
+      </div>
+
+      <!-- Правая часть: контент -->
+      <div class="modal__right">
+        <h2 id="modalTitle" class="modal__title">Говяжий донер</h2>
+        <p class="modal__desc">Подробное описание говяжьего донера...</p>
+
+        <div class="grid">
+  <div class="card">
+    <h2>1) Выбор параметров</h2>
+    <label>Размер:
+      <select id="size"></select>
+    </label>
+    <label>Основа:
+      <select id="base"></select>
+    </label>
+    <hr/>
+    <h3>Ингредиенты (пример)</h3>
+    <div id="ingredients"></div>
+
+    <button id="btnCalc">Пересчитать</button>
+    <button id="btnAdd">Добавить в корзину</button>
+  </div>
+
+  <div class="card">
+    <h2>2) Цена</h2>
+    <div>Subtotal: <b id="subtotal">—</b></div>
+    <div>Warnings:</div>
+    <ul id="warnings"></ul>
+    <div>Аллергены: <span id="allergens"></span></div>
+  </div>
+</div>
+        <!-- тут дальше можешь добавлять опции/добавки/кнопки -->
+      </div>
+    </div>
+  </div>
+</div>
+
   </div>
 </div>
     </article>
@@ -304,4 +355,113 @@
     </article>
   </div>
 </div>
+<script>
+let OPTIONS = null;
+
+function selectedIngredientIds() {
+  const ids = [];
+  document.querySelectorAll('input[data-ing="1"]').forEach(cb => {
+    if (cb.checked) ids.push(parseInt(cb.value, 10));
+  });
+  return ids;
+}
+
+async function loadOptions() {
+  const r = await fetch("/api/builder/options/");
+  OPTIONS = await r.json();
+
+  const sizeSel = document.getElementById("size");
+  OPTIONS.sizes.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = `${s.name} (${s.code}) — ${s.base_price}`;
+    sizeSel.appendChild(opt);
+  });
+
+  const baseSel = document.getElementById("base");
+  OPTIONS.bases.forEach(b => {
+    const opt = document.createElement("option");
+    opt.value = b.id;
+    opt.textContent = `${b.name} — ${b.price}`;
+    baseSel.appendChild(opt);
+  });
+
+  // Render a simple ingredient list (you will replace with your UI)
+  const box = document.getElementById("ingredients");
+  const types = Object.keys(OPTIONS.ingredients_by_type || {});
+  types.forEach(t => {
+    const h = document.createElement("h4");
+    h.textContent = t;
+    box.appendChild(h);
+    OPTIONS.ingredients_by_type[t].forEach(ing => {
+      const row = document.createElement("div");
+      row.innerHTML = `
+        <label>
+          <input type="checkbox" data-ing="1" value="${ing.id}">
+          ${ing.name} — ${ing.price}
+        </label>`;
+      box.appendChild(row);
+    });
+  });
+}
+
+async function calculate() {
+  const payload = {
+    size_id: parseInt(document.getElementById("size").value, 10),
+    base_id: parseInt(document.getElementById("base").value, 10),
+    ingredient_ids: selectedIngredientIds(),
+    quantities: {}
+  };
+  const r = await fetch("/api/builder/calculate/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
+    body: JSON.stringify(payload),
+  });
+  const data = await r.json();
+
+  if (!data.ok) {
+    alert((data.error || "Ошибка") + "\n" + (data.errors ? data.errors.join("\n") : ""));
+    return null;
+  }
+  document.getElementById("subtotal").textContent = data.subtotal;
+  document.getElementById("allergens").textContent = (data.allergens || []).join(", ");
+
+  const ul = document.getElementById("warnings");
+  ul.innerHTML = "";
+  (data.warnings || []).forEach(w => {
+    const li = document.createElement("li");
+    li.textContent = w;
+    ul.appendChild(li);
+  });
+  return data;
+}
+
+async function addToCart() {
+  const calc = await calculate();
+  if (!calc) return;
+
+  const payload = {
+    item_type: "BUILDER",
+    quantity: 1,
+    size_id: calc.snapshot.size.id,
+    base_id: calc.snapshot.base.id,
+    ingredient_ids: calc.snapshot.items.map(x => x.id),
+    quantities: Object.fromEntries(calc.snapshot.items.map(x => [String(x.id), x.qty]))
+  };
+
+  const r = await fetch("/api/cart/add/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
+    body: JSON.stringify(payload),
+  });
+  const data = await r.json();
+  if (!data.ok) alert(data.error || "Ошибка");
+  else window.location.href = "/cart/";
+}
+
+document.getElementById("btnCalc").addEventListener("click", calculate);
+document.getElementById("btnAdd").addEventListener("click", addToCart);
+
+loadOptions();
+</script>
 {% endblock %}
