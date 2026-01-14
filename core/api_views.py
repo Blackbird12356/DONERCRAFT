@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
-from builder.services import calculate_build, get_builder_options
+from builder.services import calculate_build
 from cart.services import get_or_create_cart, cart_to_dict, add_builder_item, add_product_item, update_item_qty, remove_item
 from orders.services import create_order_from_cart, order_to_dict
 from orders.models import Order, PromoCode
@@ -18,7 +18,7 @@ def _json(request: HttpRequest):
 
 @require_http_methods(["GET"])
 def builder_options(request):
-    return JsonResponse(get_builder_options())
+    return JsonResponse(calculate_build())
 
 @require_http_methods(["POST"])
 def builder_calculate(request):

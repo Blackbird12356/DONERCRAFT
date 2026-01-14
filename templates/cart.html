@@ -1,18 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Корзина{% endblock %}
 {% block content %}
-<h1>Корзина (пример)</h1>
+<h1>Корзина</h1>
 
 <div class="card">
   <div id="cartBox">Загрузка...</div>
-  <p><a class="btn" href="/checkout/">Перейти к оформлению</a></p>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 async function loadCart() {
-  const r = await fetch("/api/cart/");
+  const r = await fetch("/api/cart/", {credentials: "same-origin"});
   const data = await r.json();
   const box = document.getElementById("cartBox");
 
@@ -20,8 +19,8 @@ async function loadCart() {
     box.textContent = "Ошибка корзины";
     return;
   }
-  const cart = data.cart;
 
+  const cart = data.cart;
   if (!cart.items.length) {
     box.innerHTML = "<p>Корзина пустая</p>";
     return;
@@ -44,6 +43,7 @@ async function removeItem(id) {
   await fetch("/api/cart/remove/", {
     method: "POST",
     headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
+    credentials: "same-origin",
     body: JSON.stringify({item_id: id})
   });
   loadCart();

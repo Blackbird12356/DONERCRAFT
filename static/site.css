@@ -108,6 +108,30 @@ body {
   background: #ff7c1a;
 }
 
+.btn-added{
+  transform: scale(0.98);
+  filter: brightness(0.95);
+  transition: 0.2s ease;
+}
+
+.toast-added{
+  position: fixed;
+  right: 20px;
+  top: 90px;
+  background: #111;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: .25s ease;
+  z-index: 99999;
+}
+.toast-added.show{
+  opacity: 1;
+  transform: translateY(0);
+}
+
 
 /* ===== Hero ===== */
 .hero {
@@ -302,13 +326,9 @@ body {
   transform: translateY(0);
 }
 
-/* запрет скролла страницы когда модалка открыта */
-.no-scroll {
-  overflow: hidden;
-}
+.no-scroll { overflow: hidden; }
 
-/* фон модалки */
-.modal-container {
+.modal-container{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
@@ -323,25 +343,22 @@ body {
   transition: opacity .2s ease;
 }
 
-/* активное состояние */
-.modal-container.show {
+.modal-container.show{
   opacity: 1;
   pointer-events: auto;
 }
 
-/* окно */
-.modal {
+.modal{
   position: relative;
   width: min(1000px, 96vw);
   max-height: min(720px, 90vh);
   background: #fff;
   border-radius: 18px;
-  overflow: hidden; /* важно */
+  overflow: hidden;
   box-shadow: 0 20px 60px rgba(0,0,0,0.25);
 }
 
-/* крестик */
-.modal-close {
+.modal-close{
   position: absolute;
   top: 14px;
   right: 14px;
@@ -355,44 +372,25 @@ body {
   line-height: 38px;
 }
 
-.modal-close:hover {
-  background: rgba(0,0,0,0.10);
-}
-
-/* сетка как у Dodo: слева картинка, справа контент */
-.modal__grid {
+.modal__grid{
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   height: 100%;
 }
 
-.modal__left {
-  background: #fff;
+.modal__left{
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 28px;
 }
 
-.modal__right {
+.modal__right{
   padding: 28px 28px 28px 18px;
-  overflow: auto; /* если контента много — скролл внутри окна */
+  overflow: auto;
 }
 
-.modal__title {
-  margin: 60px 0 6px;
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.modal__desc {
-  margin: 0 0 14px;
-  color: #444;
-  line-height: 1.35;
-}
-
-/* картинка донера */
-.donerimg {
+.donerimg{
   width: min(520px, 100%);
   aspect-ratio: 1/1;
   display: flex;
@@ -400,77 +398,56 @@ body {
   justify-content: center;
 }
 
-.donerimgpic {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.donerimg__img {
+.donerimg__img{
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
 }
 
-/* ===== Панель конструктора в модалке ===== */
-.builder-panel__controls{
-  margin-top: 31px;
+.control-title{
+  margin-top: 10px;
+  font-weight: 800;
+  font-size: 14px;
 }
 
-/* сегменты (как “пилюли”) */
 .seg{
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   background: #f5f5f6;
-  padding: 6px;
+  padding: 3px;
   border-radius: 999px;
-  margin: 10px 0;
+  border: 1px solid #ededed;
+  margin: 8px 0 10px;
 }
 
 .seg__btn{
   border: 0;
   background: transparent;
-  padding: 8px 30px;
+  padding: 7px 12px;
   border-radius: 999px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
-  color: #222;
-}
-
-.seg__btn_2{
-  border: 0;
-  background: transparent;
-  padding: 8px 60px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 13px;
   color: #222;
 }
 
 .seg__btn.is-active{
   background: #fff;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+  border: 1px solid #ededed;
 }
 
-/* ===== Добавки ===== */
 .addons__title{
   margin: 14px 0 10px;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .addons-grid{
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-}
-
-@media (max-width: 520px){
-  .addons-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .addon-card{
@@ -490,32 +467,27 @@ body {
   box-shadow: 0 10px 18px rgba(0,0,0,0.10);
 }
 
+.addon-card.is-selected{
+  border-color: rgba(255,106,0,0.55);
+  box-shadow: 0 10px 18px rgba(255,106,0,0.16);
+}
+
 .addon-card__img{
   width: 100%;
   height: 64px;
   object-fit: contain;
-  display: block;
 }
 
 .addon-card__name{
-  font-weight: 700;
+  font-weight: 800;
   font-size: 12px;
-  color: #222;
 }
 
 .addon-card__price{
-  font-weight: 700;
+  font-weight: 900;
   font-size: 14px;
-  color: #111;
 }
 
-/* выбранная добавка */
-.addon-card.is-selected{
-  border-color: rgba(255, 106, 0, 0.55);
-  box-shadow: 0 10px 18px rgba(255, 106, 0, 0.16);
-}
-
-/* ===== Итог + CTA ===== */
 .builder-total{
   display: flex;
   align-items: center;
@@ -526,36 +498,28 @@ body {
 
 .builder-total__price{
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .builder-total__cta{
   border: 0;
   border-radius: 999px;
   padding: 12px 16px;
-  min-width: 180px;
+  min-width: 190px;
   cursor: pointer;
   background: #ff6a00;
   color: #fff;
-  font-weight: 800;
-  margin-right: 24px;
+  font-weight: 900;
 }
 
-.builder-total__cta:hover{
-  background: #ff7c1a;
+.builder-total__cta:hover{ background: #ff7c1a; }
+
+@media (max-width: 820px){
+  .modal__grid{ grid-template-columns: 1fr; }
+  .modal__right{ padding: 18px; }
+  .addons-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-
-/* мобилка: картинка сверху, контент снизу */
-@media (max-width: 820px) {
-  .modal__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .modal__right {
-    padding: 18px;
-  }
-}
 /* ===== Mobile ===== */
 @media (max-width: 900px) {
   .hero {

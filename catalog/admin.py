@@ -27,6 +27,6 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "price", "is_available")
-    list_filter = ("category", "is_available")
-    search_fields = ("name",)
+    list_display = ("id", "name", "category", "price", "is_available")
+    list_display_links = ("id", "name")
+

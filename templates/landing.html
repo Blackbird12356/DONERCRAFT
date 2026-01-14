@@ -37,7 +37,7 @@
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
 <button type="button"
         class="dodo-btn js-open-modal"
-        data-product-id="1"
+        data-product-id="3"
         data-base-price="1500">
   Выбрать
 </button>
@@ -48,68 +48,72 @@
     <button class="modal-close" id="close" aria-label="Закрыть">×</button>
 
     <div class="modal__grid">
-      <!-- Левая часть: картинка -->
+      <!-- СЛЕВА: картинка -->
       <div class="modal__left">
         <div class="donerimg">
-          <picture class="donerimgpic">
-            <img alt="Говяжий донер" src="/static/img/donerwrap.png" class="donerimg__img">
-          </picture>
+          <img class="donerimg__img" src="/static/img/donerwrap.png" alt="Донер">
         </div>
       </div>
-      <!-- Правая часть: информация и выбор -->
- <section class="builder-panel" id="modalBuilder" data-product-id="" data-base-price="0">
-  <h2 id="modalTitle" class="modal__title">Говяжий донер</h2>
-  <p class="modal__desc">Подробное описание говяжьего донера...</p>
 
-  <div class="builder-panel__controls">
+      <!-- СПРАВА: управление -->
+      <div class="modal__right" id="modalBuilder">
+        <h2 id="modalTitle" class="modal__title">Говяжий донер</h2>
+        <p class="modal__desc">Подробное описание говяжьего донера...</p>
 
-    <!-- Размер -->
-    <div class="seg seg--size">
-      <button type="button" class="seg__btn is-active" data-size="20">20 см</button>
-      <button type="button" class="seg__btn" data-size="25">25 см</button>
-      <button type="button" class="seg__btn" data-size="30">30 см</button>
-      <button type="button" class="seg__btn" data-size="35">35 см</button>
+        <div class="control-title">Размер донера</div>
+        <div class="seg seg--size" id="segSize">
+          {% for s in sizes %}
+            <button type="button"
+                    class="seg__btn {% if forloop.first %}is-active{% endif %}"
+                    data-size-id="{{ s.id }}">
+              {{ s.code }}
+            </button>
+          {% endfor %}
+        </div>
+
+        <div class="control-title">Основа</div>
+        <div class="seg seg--base" id="segBase">
+          {% for b in bases %}
+            <button type="button"
+                    class="seg__btn {% if forloop.first %}is-active{% endif %}"
+                    data-base-id="{{ b.id }}">
+              {{ b.name }}
+            </button>
+          {% endfor %}
+        </div>
+
+        <h3 class="addons__title">Добавить по вкусу</h3>
+
+        <div class="addons-grid" id="addonsGrid">
+          {% for a in addons %}
+            <button type="button"
+                    class="addon-card"
+                    data-addon-id="{{ a.id }}">
+              <!-- если нет картинок по допам — будет дефолт -->
+              <img class="addon-card__img"
+                   src="/static/img/ingredients/{{ a.id }}.png"
+                   onerror="this.src='/static/img/addons/default.png'"
+                   alt="{{ a.name }}">
+              <span class="addon-card__name">{{ a.name }}</span>
+              <span class="addon-card__price">{{ a.price }} тг.</span>
+            </button>
+          {% endfor %}
+        </div>
+
+<div class="builder-total">
+  <div class="builder-total__price" id="modalTotal">0 тг.</div>
+
+  <!-- ВАЖНО: именно id="modalAddToCart" -->
+  <button type="button" class="dodo-btn" id="modalAddToCart">
+    В корзину
+  </button>
+</div>
+
+      </div>
     </div>
-
-    <!-- Основа -->
-    <div class="seg seg--base">
-      <button type="button" class="seg__btn is-active" data-base="trad">Традиционное</button>
-      <button type="button" class="seg__btn" data-base="thin">Тонкое</button>
-    </div>
-
-    <h3 class="addons__title">Добавить по вкусу</h3>
-
-    <div class="addons-grid" id="addonsGrid">
-      <!-- цены берём из data-price -->
-      <button type="button" class="addon-card" data-addon-id="bortik" data-price="800">
-        <img src="/static/img/demo.png" class="addon-card__img" alt="">
-        <span class="addon-card__name">Сырный бортик</span>
-        <span class="addon-card__price">800 тг.</span>
-      </button>
-
-      <button type="button" class="addon-card" data-addon-id="mozz" data-price="350">
-        <img src="/static/img/demo.png" class="addon-card__img" alt="">
-        <span class="addon-card__name">Моцарелла</span>
-        <span class="addon-card__price">350 тг.</span>
-      </button>
-
-      <button type="button" class="addon-card" data-addon-id="cheddar" data-price="450">
-        <img src="/static/img/demo.png" class="addon-card__img" alt="">
-        <span class="addon-card__name">Чеддер и пармезан</span>
-        <span class="addon-card__price">450 тг.</span>
-      </button>
-    </div>
-
-    <div class="builder-total">
-      <div class="builder-total__price" id="modalTotal">0 тг.</div>
-      <button type="button" class="builder-total__cta" id="modalAddToCart">
-        В корзину
-      </button>
-    </div>
-  </div>
-</section>
   </div>
 </div>
+
 
   </div>
 </div>
@@ -127,10 +131,7 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button"
-        class="dodo-btn js-open-modal"
-        data-product-id="1"
-        data-base-price="1500">
+<button type="button" class="dodo-btn js-open-modal">
   Выбрать
 </button>
 
@@ -385,113 +386,7 @@
     </article>
   </div>
 </div>
-<script>
-let OPTIONS = null;
-
-function selectedIngredientIds() {
-  const ids = [];
-  document.querySelectorAll('input[data-ing="1"]').forEach(cb => {
-    if (cb.checked) ids.push(parseInt(cb.value, 10));
-  });
-  return ids;
-}
-
-async function loadOptions() {
-  const r = await fetch("/api/builder/options/");
-  OPTIONS = await r.json();
-
-  const sizeSel = document.getElementById("size");
-  OPTIONS.sizes.forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s.id;
-    opt.textContent = `${s.name} (${s.code}) — ${s.base_price}`;
-    sizeSel.appendChild(opt);
-  });
-
-  const baseSel = document.getElementById("base");
-  OPTIONS.bases.forEach(b => {
-    const opt = document.createElement("option");
-    opt.value = b.id;
-    opt.textContent = `${b.name} — ${b.price}`;
-    baseSel.appendChild(opt);
-  });
-
-  // Render a simple ingredient list (you will replace with your UI)
-  const box = document.getElementById("ingredients");
-  const types = Object.keys(OPTIONS.ingredients_by_type || {});
-  types.forEach(t => {
-    const h = document.createElement("h4");
-    h.textContent = t;
-    box.appendChild(h);
-    OPTIONS.ingredients_by_type[t].forEach(ing => {
-      const row = document.createElement("div");
-      row.innerHTML = `
-        <label>
-          <input type="checkbox" data-ing="1" value="${ing.id}">
-          ${ing.name} — ${ing.price}
-        </label>`;
-      box.appendChild(row);
-    });
-  });
-}
-
-async function calculate() {
-  const payload = {
-    size_id: parseInt(document.getElementById("size").value, 10),
-    base_id: parseInt(document.getElementById("base").value, 10),
-    ingredient_ids: selectedIngredientIds(),
-    quantities: {}
-  };
-  const r = await fetch("/api/builder/calculate/", {
-    method: "POST",
-    headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
-    body: JSON.stringify(payload),
-  });
-  const data = await r.json();
-
-  if (!data.ok) {
-    alert((data.error || "Ошибка") + "\n" + (data.errors ? data.errors.join("\n") : ""));
-    return null;
-  }
-  document.getElementById("subtotal").textContent = data.subtotal;
-  document.getElementById("allergens").textContent = (data.allergens || []).join(", ");
-
-  const ul = document.getElementById("warnings");
-  ul.innerHTML = "";
-  (data.warnings || []).forEach(w => {
-    const li = document.createElement("li");
-    li.textContent = w;
-    ul.appendChild(li);
-  });
-  return data;
-}
-
-async function addToCart() {
-  const calc = await calculate();
-  if (!calc) return;
-
-  const payload = {
-    item_type: "BUILDER",
-    quantity: 1,
-    size_id: calc.snapshot.size.id,
-    base_id: calc.snapshot.base.id,
-    ingredient_ids: calc.snapshot.items.map(x => x.id),
-    quantities: Object.fromEntries(calc.snapshot.items.map(x => [String(x.id), x.qty]))
-  };
-
-  const r = await fetch("/api/cart/add/", {
-    method: "POST",
-    headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
-    body: JSON.stringify(payload),
-  });
-  const data = await r.json();
-  if (!data.ok) alert(data.error || "Ошибка");
-  else window.location.href = "/cart/";
-}
-
-document.getElementById("btnCalc").addEventListener("click", calculate);
-document.getElementById("btnAdd").addEventListener("click", addToCart);
-
-loadOptions();
-</script>
+{% endblock %}
+{% block scripts %}
+<script src="/static/script.js"></script>
 {% endblock %}
