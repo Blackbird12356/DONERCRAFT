@@ -1,0 +1,149 @@
+.cart-layout{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 980px){
+  .cart-layout{ grid-template-columns: 1fr; }
+}
+
+.cart-title{
+  margin: 10px 0 14px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.cart-subtitle{
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.cart-empty{
+  padding: 14px;
+  color: #666;
+}
+
+.cart-list{ display: grid; gap: 12px; }
+
+.cart-item-row{
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-item-row:last-child{ border-bottom: 0; }
+
+.cart-item-title{
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.cart-item-meta{
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  color: #444;
+}
+
+.cart-item-actions{
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.qty{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid #eee;
+  border-radius: 999px;
+}
+
+.qty-btn{
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: #f3f3f3;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.qty-btn:hover{ background: #eaeaea; }
+
+.qty-val{ min-width: 18px; text-align: center; font-weight: 700; }
+
+.link-danger{
+  background: transparent;
+  border: 0;
+  color: #b00020;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.link-danger:hover{ text-decoration: underline; }
+
+.cart-form .form-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.cart-form .form-grid .col-span-2{
+  grid-column: 1 / -1;
+}
+
+.cart-form input, .cart-form textarea, .cart-form select{
+  width: 100%;
+  margin-top: 6px;
+}
+
+.cart-summary .summary-row{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-summary .summary-row:last-of-type{ border-bottom: 0; }
+
+.promo{
+  display: block;
+  margin-top: 12px;
+}
+
+.promo input{
+  width: 100%;
+  margin-top: 6px;
+}
+
+.btn-pay{
+  margin-top: 12px;
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 14px;
+  background: #ff6a00;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-pay:hover{ background: #ff7c1a; }
+.btn-pay:disabled{ opacity: .6; cursor: default; }
+
+.form-error{
+  margin-top: 10px;
+  color: #b00020;
+  font-weight: 700;
+}

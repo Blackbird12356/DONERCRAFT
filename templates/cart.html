@@ -1,54 +1,267 @@
 {% extends "base.html" %}
 {% block title %}Корзина{% endblock %}
-{% block content %}
-<h1>Корзина</h1>
 
-<div class="card">
-  <div id="cartBox">Загрузка...</div>
+{% block content %}
+<link rel="stylesheet" href="/static/cart.css" />
+<div class="cart-layout">
+  <!-- LEFT -->
+  <section class="cart-left">
+    <h1 class="cart-title">Корзина</h1>
+
+    <div class="card cart-items" id="cartBox">
+      Загрузка...
+    </div>
+
+    <div class="card cart-form">
+      <h2 class="cart-subtitle">Адрес доставки</h2>
+
+      <div class="form-grid">
+        <label>
+          Имя
+          <input id="cName" type="text" placeholder="Ваше имя">
+        </label>
+
+        <label>
+          Телефон
+          <input id="cPhone" type="text" placeholder="+7 ...">
+        </label>
+
+        <label>
+          Email (необязательно)
+          <input id="cEmail" type="email" placeholder="you@example.com">
+        </label>
+
+        <label>
+          Тип
+          <select id="cDeliveryType">
+            <option value="DELIVERY">Доставка</option>
+            <option value="PICKUP">Самовывоз</option>
+          </select>
+        </label>
+
+        <label class="col-span-2">
+          Адрес
+          <textarea id="cAddress" rows="3" placeholder="Город, улица, дом"></textarea>
+        </label>
+
+        <label class="col-span-2">
+          Детали (кв/подъезд/этаж)
+          <input id="cAddressDetails" type="text" placeholder="кв 12, подъезд 2, этаж 5">
+        </label>
+
+        <label class="col-span-2">
+          Комментарий
+          <textarea id="cComment" rows="2" placeholder="Например: не звонить, написать в WhatsApp"></textarea>
+        </label>
+
+        <label class="col-span-2">
+          Оплата
+          <select id="cPaymentMethod">
+            <option value="ONLINE">Онлайн</option>
+            <option value="KASPI_QR">Kaspi QR</option>
+            <option value="CASH">Наличные</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT -->
+  <aside class="cart-right">
+    <div class="card cart-summary">
+      <h2 class="cart-subtitle">Итого</h2>
+
+      <div class="summary-row">
+        <span>Сумма</span>
+        <strong id="sumSubtotal">0.00 тг.</strong>
+      </div>
+
+      <label class="promo">
+        Промокод
+        <input id="promoCode" type="text" placeholder="PROMO2026">
+      </label>
+
+      <button class="btn-pay" id="btnPay">Оплатить заказ</button>
+
+      <p class="form-error" id="payError" hidden></p>
+    </div>
+  </aside>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-async function loadCart() {
-  const r = await fetch("/api/cart/", {credentials: "same-origin"});
-  const data = await r.json();
-  const box = document.getElementById("cartBox");
-
-  if (!data.ok) {
-    box.textContent = "Ошибка корзины";
-    return;
+  // Если у тебя getCookie уже в base.html — можно удалить эту функцию
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
   }
 
-  const cart = data.cart;
-  if (!cart.items.length) {
-    box.innerHTML = "<p>Корзина пустая</p>";
-    return;
+  const CSRF = window.CSRF_TOKEN || getCookie("csrftoken") || "";
+
+  const cartBox = document.getElementById("cartBox");
+  const sumSubtotal = document.getElementById("sumSubtotal");
+
+  const btnPay = document.getElementById("btnPay");
+  const payError = document.getElementById("payError");
+
+  const cName = document.getElementById("cName");
+  const cPhone = document.getElementById("cPhone");
+  const cEmail = document.getElementById("cEmail");
+  const cDeliveryType = document.getElementById("cDeliveryType");
+  const cAddress = document.getElementById("cAddress");
+  const cAddressDetails = document.getElementById("cAddressDetails");
+  const cComment = document.getElementById("cComment");
+  const cPaymentMethod = document.getElementById("cPaymentMethod");
+  const promoCode = document.getElementById("promoCode");
+
+  function fmt(x) {
+    const n = Number(x || 0);
+    return n.toFixed(2) + " тг.";
   }
 
-  box.innerHTML = `
-    <ul>
-      ${cart.items.map(it => `
-        <li>
-          <b>${it.title}</b> — ${it.quantity} × ${it.unit_price} = ${it.total_price}
-          <button onclick="removeItem(${it.id})">Удалить</button>
-        </li>`).join("")}
-    </ul>
-    <hr/>
-    <div>Subtotal: <b>${cart.subtotal}</b></div>
-  `;
-}
+  let lastCart = null;
 
-async function removeItem(id) {
-  await fetch("/api/cart/remove/", {
-    method: "POST",
-    headers: {"Content-Type": "application/json", "X-CSRFToken": window.CSRF_TOKEN},
-    credentials: "same-origin",
-    body: JSON.stringify({item_id: id})
+  async function loadCart() {
+    const r = await fetch("/api/cart/", { credentials: "same-origin" });
+    const data = await r.json();
+    lastCart = data;
+
+    if (!data.ok) {
+      cartBox.textContent = "Ошибка загрузки корзины";
+      return;
+    }
+
+    sumSubtotal.textContent = fmt(data.subtotal);
+
+    if (!data.items || data.items.length === 0) {
+      cartBox.innerHTML = '<div class="cart-empty">Корзина пустая</div>';
+      return;
+    }
+
+    cartBox.innerHTML = `
+      <div class="cart-list">
+        ${data.items.map(it => `
+          <div class="cart-item-row">
+            <div class="cart-item-main">
+              <div class="cart-item-title">${it.title}</div>
+              <div class="cart-item-meta">
+                <span>${it.quantity} × ${fmt(it.unit_price)}</span>
+                <strong>${fmt(it.total_price)}</strong>
+              </div>
+            </div>
+
+            <div class="cart-item-actions">
+              <div class="qty">
+                <button class="qty-btn js-dec" data-id="${it.id}">−</button>
+                <span class="qty-val">${it.quantity}</span>
+                <button class="qty-btn js-inc" data-id="${it.id}">+</button>
+              </div>
+
+              <button class="link-danger js-remove" data-id="${it.id}">Удалить</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  async function postJSON(url, payload) {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": CSRF
+      },
+      credentials: "same-origin",
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json().catch(() => ({}));
+    return { r, data };
+  }
+
+  cartBox.addEventListener("click", async (e) => {
+    const removeBtn = e.target.closest(".js-remove");
+    const incBtn = e.target.closest(".js-inc");
+    const decBtn = e.target.closest(".js-dec");
+
+    if (removeBtn) {
+      const id = Number(removeBtn.dataset.id);
+      const { r, data } = await postJSON("/api/cart/remove/", { item_id: id });
+      if (!r.ok || !data.ok) return;
+      await loadCart();
+      return;
+    }
+
+    if (incBtn || decBtn) {
+      const id = Number((incBtn || decBtn).dataset.id);
+      const item = (lastCart?.items || []).find(x => Number(x.id) === id);
+      if (!item) return;
+
+      let nextQty = Number(item.quantity);
+      nextQty = incBtn ? nextQty + 1 : nextQty - 1;
+      if (nextQty < 1) nextQty = 1;
+
+      const { r, data } = await postJSON("/api/cart/update/", { item_id: id, quantity: nextQty });
+      if (!r.ok || !data.ok) return;
+      await loadCart();
+    }
   });
-  loadCart();
-}
 
-loadCart();
+  btnPay.addEventListener("click", async () => {
+    payError.hidden = true;
+
+    if (!lastCart?.items || lastCart.items.length === 0) {
+      payError.textContent = "Корзина пустая";
+      payError.hidden = false;
+      return;
+    }
+
+    btnPay.disabled = true;
+    btnPay.textContent = "Оформляем...";
+
+    const payload = {
+      customer_name: (cName.value || "").trim(),
+      phone: (cPhone.value || "").trim(),
+      email: (cEmail.value || "").trim(),
+      delivery_type: cDeliveryType.value,
+      address: (cAddress.value || "").trim(),
+      address_details: (cAddressDetails.value || "").trim(),
+      comment: (cComment.value || "").trim(),
+      payment_method: cPaymentMethod.value,
+      promo_code: (promoCode.value || "").trim()
+    };
+
+    const { r, data } = await postJSON("/api/checkout/", payload);
+
+    if (!r.ok || !data.ok) {
+      payError.textContent = data.error || "Не удалось оформить заказ";
+      payError.hidden = false;
+      btnPay.disabled = false;
+      btnPay.textContent = "Оплатить заказ";
+      return;
+    }
+
+    // сервер отдаёт redirect на страницу оплаты/успеха
+    if (data.redirect) {
+      window.location.href = data.redirect;
+      return;
+    }
+
+    // fallback
+    window.location.href = "/checkout/";
+  });
+
+  loadCart();
 </script>
 {% endblock %}

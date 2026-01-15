@@ -45,8 +45,9 @@
 
 <div class="modal-container" id="modal_container" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <button class="modal-close" id="close" aria-label="Закрыть">×</button>
-
+      <div class="modal-close">
+        <img src="/static/img/cros.png" id="close" aria-label="Закрыть"></img>
+      </div>
     <div class="modal__grid">
       <!-- СЛЕВА: картинка -->
       <div class="modal__left">
@@ -90,10 +91,9 @@
                     class="addon-card"
                     data-addon-id="{{ a.id }}">
               <!-- если нет картинок по допам — будет дефолт -->
-              <img class="addon-card__img"
-                   src="/static/img/ingredients/{{ a.id }}.png"
-                   onerror="this.src='/static/img/addons/default.png'"
-                   alt="{{ a.name }}">
+<img class="addon-card__img"
+     src="{% if a.image_url %}{{ a.image_url.url }}{% else %}/static/img/addon-default.png{% endif %}"
+     alt="{{ a.name }}">
               <span class="addon-card__name">{{ a.name }}</span>
               <span class="addon-card__price">{{ a.price }} тг.</span>
             </button>

@@ -18,7 +18,9 @@ def _json(request: HttpRequest):
 
 @require_http_methods(["GET"])
 def builder_options(request):
-    return JsonResponse(calculate_build())
+    # options без выбора пользователя → считаем как пустой payload
+    return JsonResponse(calculate_build({}), safe=False)
+
 
 @require_http_methods(["POST"])
 def builder_calculate(request):

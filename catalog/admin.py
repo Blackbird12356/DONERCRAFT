@@ -14,10 +14,11 @@ class AllergenAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ("name", "type", "category", "price", "grams", "is_available")
+    list_display = ("id", "name", "type", "category", "price", "grams", "is_available")
     list_filter = ("type", "category", "is_available", "allergens")
-    search_fields = ("name",)
+    search_fields = ("id", "name")
     filter_horizontal = ("allergens",)
+
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):

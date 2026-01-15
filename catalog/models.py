@@ -33,6 +33,7 @@ class Ingredient(models.Model):
     is_spicy = models.BooleanField(default=False)
     is_available = models.BooleanField(default=True)
     allergens = models.ManyToManyField(Allergen, blank=True, related_name="ingredients")
+    image_url = models.ImageField(upload_to="ingredients/", blank=True, null=True)
 
     class Meta:
         ordering = ["category__sort_order", "name"]
