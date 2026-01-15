@@ -7,7 +7,6 @@ from django.db import transaction
 from cart.models import Cart, CartItem
 from catalog.models import Product
 from builder.services import calculate_build
-from cart.models import CartItem
 
 
 def get_or_create_cart(request) -> Cart:
@@ -85,28 +84,24 @@ def add_product_item(cart: Cart, product_id: int, quantity: int = 1) -> dict:
 @transaction.atomic
 def add_builder_item(cart: Cart, payload: dict, quantity: int = 1) -> dict:
     calc = calculate_build(payload)
+
     if not calc.get("ok"):
-        return calc
+        return {"ok": False, "error": calc.get("error", "calculate failed")}
 
-    qty = max(1, min(int(quantity), 20))
-    total = Decimal(str(calc["total_price"]))
-    unit_price = total / qty
+    subtotal = Decimal(str(calc.get("subtotal") or 0))
+    snap = calc.get("snapshot") or {}
 
-    # красивый заголовок в корзине
-    size_name = calc["size"]["name"]
-    base_name = calc["base"]["name"]
-    title = f'{payload.get("title", "Свой донер")} ({size_name}, {base_name})'
-
-    CartItem.objects.create(
+    item = CartItem.objects.create(
         cart=cart,
         item_type=CartItem.ItemType.BUILDER,
-        quantity=qty,
-        title=title,
-        snapshot_json=calc,  # весь расчёт как снапшот
-        unit_price=unit_price,
-        total_price=unit_price * qty,
+        quantity=quantity,
+        unit_price=subtotal,          # цена за 1
+        total_price=subtotal * quantity,
+        title=snap.get("title", "Конструктор"),
+        snapshot_json=snap,
     )
-    return cart_to_dict(cart)
+    return {"ok": True, "item_id": item.id}
+
 
 
 @transaction.atomic
@@ -132,7 +127,4 @@ def remove_item(cart: Cart, item_id: int) -> dict:
     return cart_to_dict(cart)
 
 def clear_cart(cart):
-    """
-    Удаляет все позиции корзины и сбрасывает subtotal.
-    """
-    CartItem.objects.filter(cart=cart).delete()
+    cart.items.all().delete()

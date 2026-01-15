@@ -58,11 +58,9 @@
 
       <!-- СПРАВА: управление -->
       <div class="modal__right" id="modalBuilder">
-        <h2 id="modalTitle" class="modal__title">Говяжий донер</h2>
-        <p class="modal__desc">Подробное описание говяжьего донера...</p>
-
+        <h1 id="modalTitle" class="modalTitle">Говяжий донер</h1>
         <div class="control-title">Размер донера</div>
-        <div class="seg seg--size" id="segSize">
+        <div class="seg" id="segSize">
           {% for s in sizes %}
             <button type="button"
                     class="seg__btn {% if forloop.first %}is-active{% endif %}"
@@ -131,7 +129,10 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-<button type="button" class="dodo-btn js-open-modal">
+<button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="4"
+        data-base-price="1500">
   Выбрать
 </button>
 
@@ -151,7 +152,12 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button" class="dodo-btn">Выбрать</button>
+      <button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="5"
+        data-base-price="1500">
+  Выбрать
+</button>
   </div>
 </div>
     </article>
@@ -168,7 +174,12 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button" class="dodo-btn">Выбрать</button>
+      <button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="6"
+        data-base-price="1500">
+  Выбрать
+</button>
   </div>
 </div>
     </article>
@@ -186,7 +197,12 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button" class="dodo-btn">Выбрать</button>
+      <button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="7"
+        data-base-price="1500">
+  Выбрать
+</button>
   </div>
 </div>
     </article>
@@ -203,7 +219,12 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button" class="dodo-btn">Выбрать</button>
+      <button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="8"
+        data-base-price="1500">
+  Выбрать
+</button>
   </div>
 </div>
     </article>
@@ -220,7 +241,12 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button" class="dodo-btn">Выбрать</button>
+      <button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="9"
+        data-base-price="1500">
+  Выбрать
+</button>
   </div>
 </div>
     </article>
@@ -237,7 +263,12 @@
 <div class="product-control">
   <div class="product-control-price">
     <span class="money"><span class="money__value">от 1&nbsp;500</span> <span class="money__currency">тг.</span></span>
-      <button type="button" class="dodo-btn">Выбрать</button>
+      <button type="button"
+        class="dodo-btn js-open-modal"
+        data-product-id="10"
+        data-base-price="1500">
+  Выбрать
+</button>
   </div>
 </div>
     </article>
@@ -389,4 +420,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="/static/script.js"></script>
+<form style="display:none">{% csrf_token %}</form>
 {% endblock %}

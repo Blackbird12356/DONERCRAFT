@@ -1,6 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from builder.models import SizeOption, BaseOption
 from catalog.models import Ingredient
+from orders.models import Order
 
 def landing(request):
     sizes = SizeOption.objects.order_by("base_price")
@@ -24,6 +25,9 @@ def cart_page(request):
 def checkout_page(request):
     return render(request, "checkout.html")
 
-def order_success_page(request, order_id: int):
-    order = get_object_or_404(order, pk=order_id)
-    return render(request, "order_success.html", {"order": order})
+def order_success_page(request, order_id):
+    order_obj = get_object_or_404(Order, pk=order_id)
+
+    return render(request, "order_success.html", {
+        "order": order_obj
+    })

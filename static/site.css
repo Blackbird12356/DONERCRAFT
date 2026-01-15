@@ -343,6 +343,12 @@ body {
   transition: opacity .2s ease;
 }
 
+.modalTitle{
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
 .modal-container.show{
   opacity: 1;
   pointer-events: auto;
@@ -406,8 +412,7 @@ body {
 }
 
 .control-title{
-  margin-top: 10px;
-  font-weight: 800;
+  margin-top: 13px;
   font-size: 14px;
 }
 
@@ -415,11 +420,10 @@ body {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  background: #f5f5f6;
   padding: 3px;
   border-radius: 999px;
-  border: 1px solid #ededed;
   margin: 8px 0 10px;
+  margin-right: 163px;
 }
 
 .seg__btn{
@@ -428,7 +432,6 @@ body {
   padding: 7px 12px;
   border-radius: 999px;
   cursor: pointer;
-  font-weight: 700;
   font-size: 13px;
   color: #222;
 }
@@ -441,7 +444,6 @@ body {
 .addons__title{
   margin: 14px 0 10px;
   font-size: 16px;
-  font-weight: 800;
 }
 
 .addons-grid{
@@ -479,12 +481,10 @@ body {
 }
 
 .addon-card__name{
-  font-weight: 800;
   font-size: 12px;
 }
 
 .addon-card__price{
-  font-weight: 900;
   font-size: 14px;
 }
 
@@ -498,7 +498,6 @@ body {
 
 .builder-total__price{
   font-size: 16px;
-  font-weight: 900;
 }
 
 .builder-total__cta{
