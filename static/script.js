@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const segBase = document.getElementById("segBase");
   const addonsGrid = document.getElementById("addonsGrid");
 
+  const modalTitle = document.getElementById("modalTitle");
   const modalTotal = document.getElementById("modalTotal");
   const modalAddToCart = document.getElementById("modalAddToCart");
 
@@ -33,8 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!segSize) missing.push("segSize");
   if (!segBase) missing.push("segBase");
   if (!addonsGrid) missing.push("addonsGrid");
+  if (!modalTitle) missing.push("modalTitle");
   if (!modalTotal) missing.push("modalTotal");
   if (!modalAddToCart) missing.push("modalAddToCart");
+  if (!closeBtn) missing.push("close");
   if (missing.length) {
     console.log("Missing modal nodes:", missing.join(", "));
     return;
@@ -83,12 +86,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1200);
   }
 
+  // === Название донера из админки (без правки HTML) ===
+  async function fillModalProductTitle(productId) {
+    if (!modalTitle) return;
+    if (!productId) {
+      modalTitle.textContent = "Донер";
+      return;
+    }
+
+    try {
+      // НУЖЕН эндпоинт: GET /api/products/<id>/ (я описывал ранее)
+      const r = await fetch(`/api/products/${productId}/`, { method: "GET" });
+      const data = await r.json().catch(() => ({}));
+
+      if (r.ok && data.ok && data.product?.name) {
+        modalTitle.textContent = data.product.name;
+      } else {
+        modalTitle.textContent = "Донер";
+      }
+    } catch (e) {
+      modalTitle.textContent = "Донер";
+    }
+  }
+
   // === Server calc ===
   async function recalcOnServer() {
     syncFromUI();
 
     const payload = {
-      product_id: productId,                 // важно (если ты патчил builder под product)
+      product_id: productId,                 // важно (builder/services.py требует product_id)
       size_id: selectedSizeId,
       base_id: selectedBaseId,
       ingredient_ids: Array.from(selectedAddons),
@@ -135,25 +161,39 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // === Open modal from card ===
-  document.addEventListener("click", (e) => {
+  document.addEventListener("click", async (e) => {
     const btn = e.target.closest(".js-open-modal");
     if (!btn) return;
 
     productId = Number(btn.dataset.productId || 0);
-
-    // reset
     selectedAddons = new Set();
+    lastCalc = null;
+
+    // сброс выделения допов в UI
     addonsGrid.querySelectorAll(".addon-card").forEach(c => c.classList.remove("is-selected"));
 
-    lastCalc = null;
+    // выставим дефолт (первую активную кнопку) если вдруг ничего не активировано
+    if (!segSize.querySelector(".seg__btn.is-active")) {
+      const first = segSize.querySelector(".seg__btn");
+      if (first) first.classList.add("is-active");
+    }
+    if (!segBase.querySelector(".seg__btn.is-active")) {
+      const first = segBase.querySelector(".seg__btn");
+      if (first) first.classList.add("is-active");
+    }
+
+    // 1) Заголовок из админки
+    await fillModalProductTitle(productId);
+
+    // 2) Открыть
     openModal();
 
-    // стартовая цена
-    recalcOnServer();
+    // 3) Сразу посчитать базовую цену (донер + выбранные опции)
+    recalcDebounced();
   });
 
   // === Close handlers ===
-  closeBtn?.addEventListener("click", closeModal);
+  closeBtn.addEventListener("click", closeModal);
 
   modalContainer.addEventListener("click", (e) => {
     if (e.target === modalContainer) closeModal();
@@ -184,6 +224,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!card) return;
 
     const id = Number(card.dataset.addonId);
+    if (!id) return;
+
     if (selectedAddons.has(id)) {
       selectedAddons.delete(id);
       card.classList.remove("is-selected");
@@ -205,11 +247,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const snap = lastCalc.snapshot;
 
-    // ВАЖНО: product_id должен быть внутри payload (а не рядом с fetch!)
+    // product_id должен быть внутри payload
     const payload = {
       item_type: "BUILDER",
       quantity: 1,
-      product_id: productId, // <-- вот сюда
+      product_id: productId,
       size_id: snap.size.id,
       base_id: snap.base.id,
       ingredient_ids: snap.items.map(x => x.id),
@@ -240,8 +282,6 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("Добавлено в корзину ✓");
     closeModal();
 
-    // по желанию: сразу на корзину
     window.location.href = "/cart/";
   });
 });
-

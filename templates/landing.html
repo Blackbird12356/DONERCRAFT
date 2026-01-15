@@ -24,9 +24,7 @@
     <h2 class="Doner_name">Донеры</h2>
     <article class="wrap1"><img src="/static/img/donerwrap.png" class="donerwrapimg">
       <div class="wrap1text">
-        <a href="/builder/" class="link">
           <span class="link1">Говяжий донер</span>
-        </a>
       </div>
       <p class="product-desc">
   "Острые колбаски чоризо из цыпленка,<br>
@@ -38,9 +36,11 @@
 <button type="button"
         class="dodo-btn js-open-modal"
         data-product-id="3"
-        data-base-price="1500">
+        data-product-name="{{ p.name }}"
+        data-base-price="{{ p.price }}">
   Выбрать
 </button>
+
 
 
 <div class="modal-container" id="modal_container" aria-hidden="true">
@@ -58,7 +58,7 @@
 
       <!-- СПРАВА: управление -->
       <div class="modal__right" id="modalBuilder">
-        <h1 id="modalTitle" class="modalTitle">Говяжий донер</h1>
+        <h1 id="modalTitle" class="modalTitle">...</h1>
         <div class="control-title">Размер донера</div>
         <div class="seg" id="segSize">
           {% for s in sizes %}

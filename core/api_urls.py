@@ -1,6 +1,7 @@
 from django.urls import path
 from core import api_views
 
+
 urlpatterns = [
     # builder
     path("builder/options/", api_views.builder_options, name="api_builder_options"),
@@ -18,4 +19,5 @@ urlpatterns = [
 
     # payments (demo)
     path("payments/simulate-paid/", api_views.simulate_paid, name="api_simulate_paid"),
+    path("products/<int:product_id>/", api_views.product_get),
 ]

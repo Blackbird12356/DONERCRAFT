@@ -9,6 +9,22 @@ from builder.services import calculate_build
 from cart.services import get_or_create_cart, cart_to_dict, add_builder_item, add_product_item, update_item_qty, remove_item
 from orders.services import create_order_from_cart, order_to_dict
 from orders.models import Order, PromoCode
+from catalog.models import Product  # добавь это
+
+@require_http_methods(["GET"])
+def product_get(request, product_id: int):
+    p = Product.objects.filter(id=product_id, is_available=True).first()
+    if not p:
+        return JsonResponse({"ok": False, "error": "Product not found"}, status=404)
+
+    return JsonResponse({
+        "ok": True,
+        "product": {
+            "id": p.id,
+            "name": p.name,
+            "price": str(p.price),
+        }
+    })
 
 def _json(request: HttpRequest):
     try:
