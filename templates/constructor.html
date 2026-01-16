@@ -1,36 +1,31 @@
 {% extends "base.html" %}
-{% block title %}Конструктор{% endblock %}
-
+{% block title %}Конструктор (демо){% endblock %}
 {% block content %}
 <div class="container" style="padding: 32px 16px;">
-  <h1>Конструктор</h1>
+  <h1>Конструктор (демо)</h1>
+  <p>Пример простой модалки. Реальный конструктор у тебя на странице /builder/.</p>
 
-  <button type="button"
-          class="dodo-btn js-open-modal"
-          data-product-id="{{ product.id }}"
-          data-product-name="{{ product.name }}"
-          data-base-price="{{ product.price }}">
-    Открыть конструктор
-  </button>
+  <button type="button" class="dodo-btn js-open-modal" id="openDemoModal" data-product-id="3"
+        data-product-name="{{ p.name }}"
+        data-base-price="{{ p.price }}">Открыть модалку</button>
 </div>
 
-<!-- ====== ТВОЯ МОДАЛКА (как в landing.html) ====== -->
 <div class="modal-container" id="modal_container" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-close">
-      <img src="/static/img/cros.png" id="close" aria-label="Закрыть">
-    </div>
-
+      <div class="modal-close">
+        <img src="/static/img/cros.png" id="close" aria-label="Закрыть"></img>
+      </div>
     <div class="modal__grid">
+      <!-- СЛЕВА: картинка -->
       <div class="modal__left">
         <div class="donerimg">
           <img class="donerimg__img" src="/static/img/donerwrap.png" alt="Донер">
         </div>
       </div>
 
+      <!-- СПРАВА: управление -->
       <div class="modal__right" id="modalBuilder">
         <h1 id="modalTitle" class="modalTitle">...</h1>
-
         <div class="control-title">Размер донера</div>
         <div class="seg" id="segSize">
           {% for s in sizes %}
@@ -60,25 +55,35 @@
             <button type="button"
                     class="addon-card"
                     data-addon-id="{{ a.id }}">
-              <img class="addon-card__img"
-                   src="{% if a.image_url %}{{ a.image_url.url }}{% else %}/static/img/addon-default.png{% endif %}"
-                   alt="{{ a.name }}">
+              <!-- если нет картинок по допам — будет дефолт -->
+<img class="addon-card__img"
+     src="{% if a.image_url %}{{ a.image_url.url }}{% else %}/static/img/addon-default.png{% endif %}"
+     alt="{{ a.name }}">
               <span class="addon-card__name">{{ a.name }}</span>
               <span class="addon-card__price">{{ a.price }} тг.</span>
             </button>
           {% endfor %}
         </div>
 
-        <div class="builder-total">
-          <div class="builder-total__price" id="modalTotal">0 тг.</div>
-          <button type="button" class="dodo-btn" id="modalAddToCart">В корзину</button>
-        </div>
+<div class="builder-total">
+  <div class="builder-total__price" id="modalTotal">0 тг.</div>
+
+  <!-- ВАЖНО: именно id="modalAddToCart" -->
+  <button type="button" class="dodo-btn" id="modalAddToCart">
+    В корзину
+  </button>
+</div>
 
       </div>
     </div>
   </div>
 </div>
 
-<!-- подключи твой JS (или вставь скрипт ниже) -->
-<script src="/static/js/builder_modal.js"></script>
+
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/script.js"></script>
+<form style="display:none">{% csrf_token %}</form>
 {% endblock %}

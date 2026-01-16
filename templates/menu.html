@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Меню{% endblock %}
+{% block content %}
+<div class="container" style="padding: 32px 16px;">
+  <h1>Меню</h1>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:16px;">
+    <a href="{% url 'landing' %}#Doner" class="card" style="text-decoration:none; color:inherit;">
+      <h3>Донеры</h3>
+      <p>Перейти к списку донеров</p>
+    </a>
+
+    <a href="{% url 'builder_page' %}" class="card" style="text-decoration:none; color:inherit;">
+      <h3>Конструктор</h3>
+      <p>Собрать свой донер</p>
+    </a>
+
+    <a href="{% url 'contacts' %}" class="card" style="text-decoration:none; color:inherit;">
+      <h3>Контакты</h3>
+      <p>Где мы и как связаться</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

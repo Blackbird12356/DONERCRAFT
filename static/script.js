@@ -248,15 +248,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const snap = lastCalc.snapshot;
 
     // product_id должен быть внутри payload
-    const payload = {
-      item_type: "BUILDER",
-      quantity: 1,
-      product_id: productId,
-      size_id: snap.size.id,
-      base_id: snap.base.id,
-      ingredient_ids: snap.items.map(x => x.id),
-      quantities: Object.fromEntries(snap.items.map(x => [String(x.id), x.qty]))
-    };
+  const payload = {
+    item_type: "BUILDER",
+    quantity: 1,
+    product_id: productId,   // важно
+    size_id: snap.size.id,
+    base_id: snap.base.id,
+    ingredient_ids: snap.items.map(x => x.id),
+    quantities: Object.fromEntries(snap.items.map(x => [String(x.id), x.qty]))
+  };
+
 
     modalAddToCart.disabled = true;
     modalAddToCart.textContent = "Добавляю...";

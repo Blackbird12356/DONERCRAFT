@@ -9,6 +9,7 @@ from catalog.models import Product
 from builder.services import calculate_build
 
 
+
 def get_or_create_cart(request) -> Cart:
     # гарантируем наличие session_key
     if not request.session.session_key:
@@ -81,26 +82,44 @@ def add_product_item(cart: Cart, product_id: int, quantity: int = 1) -> dict:
     return cart_to_dict(cart)
 
 
+
 @transaction.atomic
-def add_builder_item(cart: Cart, payload: dict, quantity: int = 1) -> dict:
+def add_builder_item(cart: CartItem, payload: dict, quantity: int = 1) -> dict:
     calc = calculate_build(payload)
-
     if not calc.get("ok"):
-        return {"ok": False, "error": calc.get("error", "calculate failed")}
+        return {"ok": False, "error": "Invalid build", "details": calc}
 
-    subtotal = Decimal(str(calc.get("subtotal") or 0))
-    snap = calc.get("snapshot") or {}
+    unit_price = Decimal(calc["subtotal"])
 
-    item = CartItem.objects.create(
+    snap = (calc.get("snapshot") or {})
+    # 1) пробуем взять имя из snapshot
+    pname = (snap.get("product") or {}).get("name")
+
+    # 2) если snapshot не дал имя — берём из Product по product_id (железобетонно)
+    if not pname:
+        pid = payload.get("product_id")
+        if pid:
+            pname = Product.objects.filter(id=pid).values_list("name", flat=True).first()
+
+    # 3) финальный fallback
+    if not pname:
+        pname = "Донер"
+
+    title = f"{pname} ({snap['size']['code']}, {snap['base']['name']})"
+
+    qty = max(1, min(int(quantity), 20))
+
+    CartItem.objects.create(
         cart=cart,
         item_type=CartItem.ItemType.BUILDER,
-        quantity=quantity,
-        unit_price=subtotal,          # цена за 1
-        total_price=subtotal * quantity,
-        title=snap.get("title", "Конструктор"),
+        quantity=qty,
+        title=title,
         snapshot_json=snap,
+        unit_price=unit_price,
+        total_price=unit_price * qty,
     )
-    return {"ok": True, "item_id": item.id}
+
+    return cart_to_dict(cart)
 
 
 
